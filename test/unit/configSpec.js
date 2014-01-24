@@ -13,6 +13,14 @@ describe('service', function() {
       expect(FBURL).toMatch(/^https:\/\/[a-zA-Z_-]+\.firebaseio\.com/i);
    }));
 
+   it('should have S3URL beginning with https', inject(function(S3URL) {
+      expect(S3URL).toMatch(/^https:\/\/[a-zA-Z_-]+\.s3\.amazonaws\.com/i);
+   }));
+
+   it('should have RELEASE', inject(function(RELEASE) {
+      expect(RELEASE).toEqual('test');
+   }));
+
    it('should have a valid SEMVER version', inject(function(version) {
       expect(version).toMatch(/^\d\d*(\.\d+)+$/);
    }));

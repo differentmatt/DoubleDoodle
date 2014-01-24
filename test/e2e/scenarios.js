@@ -43,15 +43,17 @@ describe('my app', function() {
   });
 
 
-  describe('chat', function() {
-     beforeEach(function() {
-        browser().navigateTo('#/chat');
-     });
+  describe('upload', function() {
+    beforeEach(function() {
+      browser().navigateTo('#/upload');
+    });
 
-     it('should render chat when user navigates to /chat', function() {
-        expect(element('[ng-view] h2:first').text()).
-           toMatch(/Chat/);
-     });
+    it('should render upload when user navigates to /upload', function() {
+      expect(element('[ng-view] h2:first').text()).toMatch(/Upload/);
+    });
+
+    // TODO: cannot set input file element via script for security reasons
+    // TODO: and it seems to be bad practice to access $scope from here
   });
 
    describe('account', function() {

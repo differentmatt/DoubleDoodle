@@ -10,9 +10,9 @@ angular.module('myApp.routes', ['ngRoute'])
          controller: 'HomeCtrl'
       });
 
-      $routeProvider.when('/chat', {
-         templateUrl: 'partials/chat.html',
-         controller: 'ChatCtrl'
+      $routeProvider.when('/upload', {
+         templateUrl: 'partials/upload.html',
+         controller: 'UploadCtrl'
       });
 
       $routeProvider.when('/account', {

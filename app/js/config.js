@@ -11,11 +11,13 @@ angular.module('myApp.config', [])
    .constant('loginRedirectPath', '/login')
 
    // your Firebase URL goes here
-   .constant('FBURL', 'https://INSTANCE.firebaseio.com')
+   .constant('FBURL', 'https://DoubleDoodle.firebaseio.com')
 
    //you can use this one to try out a demo of the seed
 //   .constant('FBURL', 'https://angularfire-seed.firebaseio.com');
 
+   .constant('S3URL', 'https://doubledoodle.s3.amazonaws.com')
+   .constant('RELEASE', 'test')
 
 /*********************
  * !!FOR E2E TESTING!!
@@ -26,3 +28,4 @@ angular.module('myApp.config', [])
  * user: test@test.com
  * pass: test123
  */
+ 

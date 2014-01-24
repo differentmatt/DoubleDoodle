@@ -7,19 +7,50 @@ angular.module('myApp.controllers', [])
       syncData('syncedValue').$bind($scope, 'syncedValue');
    }])
 
-  .controller('ChatCtrl', ['$scope', 'syncData', function($scope, syncData) {
-      $scope.newMessage = null;
+  .controller('UploadCtrl', ['$scope', '$upload', 'S3URL', 'RELEASE', 
+    function($scope, $upload, S3URL, RELEASE) {
+      $scope.progress = 0;
+      $scope.selectedFile = null;
+      
+      $scope.onFileSelect = function($files) {
+        $scope.progress = 0;
+        if ($files.length == 1) {
+          if ($files[0].type.substring(0, 5) == 'image') {
+            $scope.selectedFile = $files[0];
+          }
+          else {
+            $scope.selectedFile = null;
+            console.log('Error: wrong content type: ' + $files[0].type);
+          }
+        }
+      }
 
-      // constrain number of messages by limit into syncData
-      // add the array into $scope.messages
-      $scope.messages = syncData('messages', 10);
+      $scope.onUpload = function() {
+        if ($scope.selectedFile) {
+          $scope.createTime = new Date();
+          var filename = RELEASE + '/' + $scope.createTime.today() + $scope.createTime.timeNow();
+          filename += Math.floor((Math.random() * 1000));
+          filename += '.' + $scope.selectedFile.name.split('.').pop();
+          var contentType = $scope.selectedFile.type;
 
-      // add new messages to the list
-      $scope.addMessage = function() {
-         if( $scope.newMessage ) {
-            $scope.messages.$add({text: $scope.newMessage});
-            $scope.newMessage = null;
-         }
+          $scope.fileS3Url = S3URL + '/' + filename;
+          
+          $upload.upload({
+            url: S3URL,
+            method: 'POST',
+            data: {key: filename, 'acl': 'public-read', 'Content-Type': contentType},
+            file: $scope.selectedFile,
+          }).progress(function(evt) {
+            $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
+          }).success(function(data, status, headers, config) {
+            $scope.selectedFile = null;
+            fileInput.value = null;
+            console.log('Upload success: ' + $scope.fileS3Url);
+          }).error(function(err) {
+            $scope.progress = 0;
+            alert('Upload error: ' + err);
+          });
+        }
       };
    }])
 
