@@ -5,6 +5,45 @@
 describe('service', function() {
    beforeEach(module('myApp.services'));
 
+   describe('envPathService', function() {
+      beforeEach(module(function($provide) {
+        $provide.value('ENVS', {
+          'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+          'test' : { 'host': 'localhost', 'path': 'test' } 
+        });
+      }));
+      
+      describe('envPath prod', function() {
+        beforeEach(module(function($provide) {
+          $provide.value('$location', { 'host': function() { return 'doubledoodle.org'; }});
+        }));
+        
+        it('env path should be v1', inject(function(ENVS, $location, envPath) {
+          expect(envPath()).toBe('v1');
+        }));
+      });
+      
+      describe('envPath non-prod', function() {
+        beforeEach(module(function($provide) {
+          $provide.value('$location', { 'host': function() { return 'random.com'; }});
+        }));
+        
+        it('env path should be test', inject(function(ENVS, $location, envPath) {
+          expect(envPath()).toBe('test');
+        }));
+      });
+
+      describe('envPath test', function() {
+        beforeEach(module(function($provide) {
+          $provide.value('$location', { 'host': function() { return 'localhost'; }});
+        }));
+        
+        it('env path should be test', inject(function(ENVS, $location, envPath) {
+          expect(envPath()).toBe('test');
+        }));
+      });
+   });
+   
    describe('loginService', function() {
       beforeEach(module(function($provide) {
          // mock dependencies used by our services to isolate testing

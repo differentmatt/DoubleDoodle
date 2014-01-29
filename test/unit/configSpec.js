@@ -17,8 +17,11 @@ describe('service', function() {
       expect(S3URL).toMatch(/^https:\/\/[a-zA-Z_-]+\.s3\.amazonaws\.com/i);
    }));
 
-   it('should have RELEASE', inject(function(RELEASE) {
-      expect(RELEASE).toEqual('test');
+   it('should have ENVS', inject(function(ENVS) {
+      expect(ENVS).toEqual({
+        'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+        'test' : { 'host': 'localhost', 'path': 'test' } 
+      });
    }));
 
    it('should have a valid SEMVER version', inject(function(version) {

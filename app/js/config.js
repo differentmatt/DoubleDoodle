@@ -5,19 +5,23 @@ angular.module('myApp.config', [])
 
    // version of this seed app is compatible with angularFire 0.6
    // see tags for other versions: https://github.com/firebase/angularFire-seed/tags
-   .constant('version', '0.6')
+  .constant('version', '0.6')
 
    // where to redirect users if they need to authenticate (see module.routeSecurity)
-   .constant('loginRedirectPath', '/login')
+  .constant('loginRedirectPath', '/login')
 
    // your Firebase URL goes here
-   .constant('FBURL', 'https://DoubleDoodle.firebaseio.com')
+  .constant('FBURL', 'https://DoubleDoodle.firebaseio.com')
 
    //you can use this one to try out a demo of the seed
 //   .constant('FBURL', 'https://angularfire-seed.firebaseio.com');
 
-   .constant('S3URL', 'https://doubledoodle.s3.amazonaws.com')
-   .constant('RELEASE', 'test')
+  .constant('S3URL', 'https://doubledoodle.s3.amazonaws.com')
+  
+  .constant('ENVS', {
+    'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+    'test' : { 'host': 'localhost', 'path': 'test' } 
+  })
 
 /*********************
  * !!FOR E2E TESTING!!

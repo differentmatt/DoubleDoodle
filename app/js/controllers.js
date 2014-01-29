@@ -7,8 +7,8 @@ angular.module('myApp.controllers', [])
       syncData('syncedValue').$bind($scope, 'syncedValue');
    }])
 
-  .controller('UploadCtrl', ['$scope', '$upload', 'S3URL', 'RELEASE', 
-    function($scope, $upload, S3URL, RELEASE) {
+  .controller('UploadCtrl', ['$scope', '$upload', 'S3URL', 'envPath', 
+    function($scope, $upload, S3URL, envPath) {
       $scope.progress = 0;
       $scope.selectedFile = null;
       
@@ -28,7 +28,7 @@ angular.module('myApp.controllers', [])
       $scope.onUpload = function() {
         if ($scope.selectedFile) {
           $scope.createTime = new Date();
-          var filename = RELEASE + '/' + $scope.createTime.today() + $scope.createTime.timeNow();
+          var filename = envPath() + '/' + $scope.createTime.today() + $scope.createTime.timeNow();
           filename += Math.floor((Math.random() * 1000));
           filename += '.' + $scope.selectedFile.name.split('.').pop();
           var contentType = $scope.selectedFile.type;
