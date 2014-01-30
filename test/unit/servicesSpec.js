@@ -44,6 +44,53 @@ describe('service', function() {
       });
    });
    
+  describe('uploadImageService', function() {
+    beforeEach(module(function($provide) {
+      $provide.value('S3URL', 'https://doubledoodle.s3.amazonaws.com');
+      $provide.value('ENVS', {
+        'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+        'test' : { 'host': 'localhost', 'path': 'test' } 
+      });
+      $provide.value('$upload', new uploadStub());
+    }));
+    
+    it('progress update', inject(function(uploadImage) {
+      var eventCalled = false;
+      var files = [{name: 'myFile1.jpg', type: 'image/jpeg'}];
+      uploadImage(files[0], 
+        function (progress) { 
+          eventCalled = true;
+          expect(progress).toBe(84); 
+        }, 
+        null, null);
+      expect(eventCalled).toBe(true);
+    }));
+
+    it('file url on success', inject(function(envPath, uploadImage) {
+      var eventCalled = false;
+      var files = [{name: 'myFile1.jpg', type: 'image/jpeg'}];
+      uploadImage(files[0], null,
+        function success(uploadUrl) {
+          eventCalled = true;
+          expect(uploadUrl).toMatch(new RegExp('^https:\/\/[a-zA-Z_-]+\.s3\.amazonaws\.com\/' + envPath() + '\/[0-9]+\.jpg', 'i'));
+        }, 
+        null);
+      expect(eventCalled).toBe(true);
+    }));
+
+    it('upload error', inject(function(uploadImage) {
+      var eventCalled = false;
+      var files = [{name: 'myFile1.jpg', type: 'image/jpeg'}];
+      uploadImage(files[0], null, null,
+        function (error) { 
+          eventCalled = true;
+          expect(error).toBe('error'); 
+        });
+      expect(eventCalled).toBe(true);
+    }));
+
+  });
+   
    describe('loginService', function() {
       beforeEach(module(function($provide) {
          // mock dependencies used by our services to isolate testing
@@ -333,4 +380,29 @@ describe('service', function() {
       this.msg = msg;
    }
    ErrorWithCode.prototype.toString = function() { return this.msg; }
+   
+  function uploadStub() {
+    // Mimic $upload.upload
+    var status = {
+      progress: function(evtFn) {
+        evtFn({loaded: 84, total: 100});
+        return status;
+      },
+      success: function(evtFn) {
+        evtFn(this.fileUrl);
+        return status;
+      },
+      error: function(evtFn) {
+        evtFn('error');
+        return status;
+      }
+    }
+    
+    return {
+      upload: function(value) {
+        this.fileUrl = value.url + '/' + value.data.key;
+        return status;
+      }
+    }
+  }
 });

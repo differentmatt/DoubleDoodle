@@ -7,8 +7,8 @@ angular.module('myApp.controllers', [])
       syncData('syncedValue').$bind($scope, 'syncedValue');
    }])
 
-  .controller('UploadCtrl', ['$scope', '$upload', 'S3URL', 'envPath', 
-    function($scope, $upload, S3URL, envPath) {
+  .controller('UploadCtrl', ['$scope', 'uploadImage', 
+    function($scope, uploadImage) {
       $scope.progress = 0;
       $scope.selectedFile = null;
       
@@ -27,29 +27,20 @@ angular.module('myApp.controllers', [])
 
       $scope.onUpload = function() {
         if ($scope.selectedFile) {
-          $scope.createTime = new Date();
-          var filename = envPath() + '/' + $scope.createTime.today() + $scope.createTime.timeNow();
-          filename += Math.floor((Math.random() * 1000));
-          filename += '.' + $scope.selectedFile.name.split('.').pop();
-          var contentType = $scope.selectedFile.type;
-
-          $scope.fileS3Url = S3URL + '/' + filename;
-          
-          $upload.upload({
-            url: S3URL,
-            method: 'POST',
-            data: {key: filename, 'acl': 'public-read', 'Content-Type': contentType},
-            file: $scope.selectedFile,
-          }).progress(function(evt) {
-            $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
-          }).success(function(data, status, headers, config) {
-            $scope.selectedFile = null;
-            fileInput.value = null;
-            console.log('Upload success: ' + $scope.fileS3Url);
-          }).error(function(err) {
-            $scope.progress = 0;
-            alert('Upload error: ' + err);
-          });
+          uploadImage($scope.selectedFile, 
+            function progressEvt(progress) {
+              $scope.progress = progress;
+            },
+            function successEvt(uploadUrl) {
+              $scope.selectedFile = null;
+              fileInput.value = null;
+              console.log('Upload success: ' + uploadUrl);
+            },
+            function errorEvt(err) {
+              $scope.progress = 0;
+              alert('Upload error: ' + err);
+            }
+          );
         }
       };
    }])
