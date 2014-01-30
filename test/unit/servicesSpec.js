@@ -88,8 +88,26 @@ describe('service', function() {
         });
       expect(eventCalled).toBe(true);
     }));
-
   });
+   
+  describe('saveQuestionService', function() {
+    beforeEach(module(function($provide) {
+      $provide.value('ENVS', {
+        'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+        'test' : { 'host': 'localhost', 'path': 'test' } 
+      });
+      $provide.value('firebaseRef', firebaseStub());
+    }));
+    
+    it('save question', inject(function(saveQuestion) {
+      var cb = jasmine.createSpy();      
+      saveQuestion('http://www.example.com/test.jpg', cb);
+      expect(cb).toHaveBeenCalled();
+      expect(cb.mostRecentCall.args.length).toBe(1);
+      expect(cb.mostRecentCall.args[0]).toBeNull();
+    }));
+  });
+
    
    describe('loginService', function() {
       beforeEach(module(function($provide) {
@@ -356,6 +374,8 @@ describe('service', function() {
       FirebaseStub.fns = { callbackVal: null };
       customSpy(FirebaseStub.fns, 'set', function(value, cb) { cb && cb(FirebaseStub.fns.callbackVal); });
       customSpy(FirebaseStub.fns, 'child', function() { return FirebaseStub.fns; });
+      customSpy(FirebaseStub.fns, 'push', function() { return FirebaseStub.fns; });
+      customSpy(FirebaseStub.fns, 'setWithPriority', function(value, priority, cb) { cb && cb(FirebaseStub.fns.callbackVal); });
       return FirebaseStub;
    }
 

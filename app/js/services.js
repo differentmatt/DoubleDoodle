@@ -48,6 +48,25 @@
         }
       });
     }
+  }])
+
+  .service('saveQuestion', ['envPath', 'firebaseRef', function(envPath, firebaseRef) {
+    return function(imageUrl, callback) {
+      var createdTime = new Date().getTime();
+
+      var question = {
+          imageUrl: imageUrl,
+          created: createdTime
+      };
+      
+      var questionsRef = firebaseRef(envPath() + '/questions');      
+      var newQuestionRef = questionsRef.push();
+      newQuestionRef.setWithPriority(question, createdTime, function(error) {
+        if (callback) {
+          callback(error);
+        }
+      });
+    }
   }]);
 })();
 

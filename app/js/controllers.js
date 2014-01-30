@@ -7,8 +7,8 @@ angular.module('myApp.controllers', [])
       syncData('syncedValue').$bind($scope, 'syncedValue');
    }])
 
-  .controller('UploadCtrl', ['$scope', 'uploadImage', 
-    function($scope, uploadImage) {
+  .controller('UploadCtrl', ['$scope', 'uploadImage', 'saveQuestion', 
+    function($scope, uploadImage, saveQuestion) {
       $scope.progress = 0;
       $scope.selectedFile = null;
       
@@ -34,11 +34,18 @@ angular.module('myApp.controllers', [])
             function successEvt(uploadUrl) {
               $scope.selectedFile = null;
               fileInput.value = null;
-              console.log('Upload success: ' + uploadUrl);
+              saveQuestion(uploadUrl, function (error) {
+                if (error) {
+                  alert('Save question: ' + error);
+                }
+                else {
+                  console.log('Save question success!');
+                }
+              });
             },
-            function errorEvt(err) {
+            function errorEvt(error) {
               $scope.progress = 0;
-              alert('Upload error: ' + err);
+              alert('Upload image: ' + error);
             }
           );
         }

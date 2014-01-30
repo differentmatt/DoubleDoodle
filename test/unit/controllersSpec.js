@@ -11,6 +11,7 @@ describe('controllers', function(){
     beforeEach(module(function($provide) {
        // mock dependencies used to isolate testing
        $provide.value('uploadImage', function(file, progressEvent, successEvent, errorEvent) {});
+       $provide.value('saveQuestion', function(url, callback) {});
     }));
     
     beforeEach(inject(function($controller) {
