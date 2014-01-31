@@ -3,8 +3,20 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-   .controller('HomeCtrl', ['$scope', 'syncData', function($scope, syncData) {
-      syncData('syncedValue').$bind($scope, 'syncedValue');
+   .controller('HomeCtrl', ['$scope', 'envPath', 'firebaseRef', '$firebase', function($scope, envPath, firebaseRef, $firebase) {
+      $scope.current = 0;
+      $scope.questions = $firebase(firebaseRef(envPath() + '/questions'));
+      
+      $scope.prev = function() {
+        if ($scope.current > 0) {
+          $scope.current = $scope.current - 1;
+        }
+      };     
+      $scope.next = function() {
+        if ($scope.current < $scope.questions.$getIndex().length - 1) {
+          $scope.current =  $scope.current + 1;
+        }
+      };      
    }])
 
   .controller('UploadCtrl', ['$scope', 'uploadImage', 'saveQuestion', 
@@ -37,9 +49,6 @@ angular.module('myApp.controllers', [])
               saveQuestion(uploadUrl, function (error) {
                 if (error) {
                   alert('Save question: ' + error);
-                }
-                else {
-                  console.log('Save question success!');
                 }
               });
             },
