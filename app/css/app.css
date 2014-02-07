@@ -64,3 +64,5 @@ fieldset {
    margin-right: 25px;
    padding: 25px;
 }
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

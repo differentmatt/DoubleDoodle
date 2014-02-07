@@ -1,8 +1,27 @@
-<h2>Upload</h2>
+<h2>Add dog picture</h2>
 
-<input id="fileInput" type="file" ng-file-select="onFileSelect($files)" ><br />
-<button ng-click="onUpload()" ng-disabled="!selectedFile">Upload</button><br />
-<div ng-show="progress && progress > 0">
-    <div class="percent">Uploading... {{progress}}%</div>
+<div ng-hide="answerGroups['A']">Loading...</div>
+<div ng-show="answerGroups['A']">
+  <input ng-model="fileInput" type="file" ng-file-select="onFileSelect($files)" ><br />
+
+  <h4>Know the breed?</h4>
+  <tabset>
+    <tab ng-repeat="(key, group) in answerGroups" heading="{{key}}">
+      <button ng-repeat="answer in group"
+          type="button" class="btn btn-primary" ng-model="checkedAnswers[answer]" 
+          btn-checkbox>{{answer}}</button>
+    </tab>
+  </tabset>
+  <div ng-show="trueAnswers().length > 0">
+    <h4>Your selection (optional):</h4>
+    <button ng-repeat="checkedAnswer in trueAnswers()" 
+        ng-click="removeAnswer(checkedAnswer)" type="button" 
+        class="btn btn-primary">{{checkedAnswer}}</button>
+  </div>
+  
+  <br />
+  <button ng-click="onUpload()" ng-disabled="!selectedFile">Upload</button><br />
+  <div ng-show="progress && progress > 0">
+      <div class="percent">Uploading... {{progress}}%</div>
+  </div>  
 </div>
-<br />

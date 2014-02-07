@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>Double Doodle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/app.css"/>
 </head>
 <body ng-cloak-auth class="hide">
@@ -11,9 +13,10 @@
     <li><a href="#/home">home</a></li>
     <li><a href="#/upload">upload</a></li>
   </ul>
-
+  
   <div ng-view></div>
 
+  <br />
   <div>AngularFire-seed v<span app-version></span></div>
 
   <script src="https://cdn.firebase.com/v0/firebase.js"></script>
@@ -22,6 +25,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-route.js"></script>
   <script src="https://cdn.firebase.com/libs/angularfire/0.6.0/angularfire.js"></script>
+  <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
   <script src="js/app.js"></script>
   <script src="js/config.js"></script>
   <script src="js/util.js"></script>

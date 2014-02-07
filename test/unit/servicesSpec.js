@@ -5,45 +5,47 @@
 describe('service', function() {
    beforeEach(module('myApp.services'));
 
-   describe('envPathService', function() {
+  // TODO: test getAnswers (couldn't get promise to callback after resolve. scope.$apply?)
+
+  describe('envPathService', function() {
+    beforeEach(module(function($provide) {
+      $provide.value('ENVS', {
+        'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
+        'test' : { 'host': 'localhost', 'path': 'test' } 
+      });
+    }));
+    
+    describe('envPath prod', function() {
       beforeEach(module(function($provide) {
-        $provide.value('ENVS', {
-          'prod' : { 'host' : 'doubledoodle.org', 'path': 'v1' }, 
-          'test' : { 'host': 'localhost', 'path': 'test' } 
-        });
+        $provide.value('$location', { 'host': function() { return 'doubledoodle.org'; }});
       }));
       
-      describe('envPath prod', function() {
-        beforeEach(module(function($provide) {
-          $provide.value('$location', { 'host': function() { return 'doubledoodle.org'; }});
-        }));
-        
-        it('env path should be v1', inject(function(ENVS, $location, envPath) {
-          expect(envPath()).toBe('v1');
-        }));
-      });
+      it('env path should be v1', inject(function(ENVS, $location, envPath) {
+        expect(envPath()).toBe('v1');
+      }));
+    });
+    
+    describe('envPath non-prod', function() {
+      beforeEach(module(function($provide) {
+        $provide.value('$location', { 'host': function() { return 'random.com'; }});
+      }));
       
-      describe('envPath non-prod', function() {
-        beforeEach(module(function($provide) {
-          $provide.value('$location', { 'host': function() { return 'random.com'; }});
-        }));
-        
-        it('env path should be test', inject(function(ENVS, $location, envPath) {
-          expect(envPath()).toBe('test');
-        }));
-      });
+      it('env path should be test', inject(function(ENVS, $location, envPath) {
+        expect(envPath()).toBe('test');
+      }));
+    });
 
-      describe('envPath test', function() {
-        beforeEach(module(function($provide) {
-          $provide.value('$location', { 'host': function() { return 'localhost'; }});
-        }));
-        
-        it('env path should be test', inject(function(ENVS, $location, envPath) {
-          expect(envPath()).toBe('test');
-        }));
-      });
+    describe('envPath test', function() {
+      beforeEach(module(function($provide) {
+        $provide.value('$location', { 'host': function() { return 'localhost'; }});
+      }));
+      
+      it('env path should be test', inject(function(ENVS, $location, envPath) {
+        expect(envPath()).toBe('test');
+      }));
+    });
    });
-   
+
   describe('uploadImageService', function() {
     beforeEach(module(function($provide) {
       $provide.value('S3URL', 'https://doubledoodle.s3.amazonaws.com');
@@ -101,7 +103,7 @@ describe('service', function() {
     
     it('save question', inject(function(saveQuestion) {
       var cb = jasmine.createSpy();      
-      saveQuestion('http://www.example.com/test.jpg', cb);
+      saveQuestion('http://www.example.com/test.jpg', null, cb);
       expect(cb).toHaveBeenCalled();
       expect(cb.mostRecentCall.args.length).toBe(1);
       expect(cb.mostRecentCall.args[0]).toBeNull();
@@ -369,13 +371,16 @@ describe('service', function() {
       // to the functions before it is instantiated, so we cheat here by
       // attaching the functions as Firebase.fns, and ignore new (we don't use `this` or `prototype`)
       var FirebaseStub = function() {
-         return FirebaseStub.fns;
+        return FirebaseStub.fns;
       };
       FirebaseStub.fns = { callbackVal: null };
       customSpy(FirebaseStub.fns, 'set', function(value, cb) { cb && cb(FirebaseStub.fns.callbackVal); });
       customSpy(FirebaseStub.fns, 'child', function() { return FirebaseStub.fns; });
       customSpy(FirebaseStub.fns, 'push', function() { return FirebaseStub.fns; });
       customSpy(FirebaseStub.fns, 'setWithPriority', function(value, priority, cb) { cb && cb(FirebaseStub.fns.callbackVal); });
+      customSpy(FirebaseStub.fns, 'once', function(value, cb) { 
+        cb && cb({ val: function() { return FirebaseStub.fns.callbackVal; } }); 
+      });
       return FirebaseStub;
    }
 

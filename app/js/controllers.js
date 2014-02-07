@@ -3,7 +3,8 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-   .controller('HomeCtrl', ['$scope', 'envPath', 'firebaseRef', '$firebase', function($scope, envPath, firebaseRef, $firebase) {
+  .controller('HomeCtrl', ['$scope', 'envPath', 'firebaseRef', '$firebase', 
+    function($scope, envPath, firebaseRef, $firebase) {
       $scope.current = 0;
       $scope.questions = $firebase(firebaseRef(envPath() + '/questions'));
       
@@ -17,13 +18,21 @@ angular.module('myApp.controllers', [])
           $scope.current =  $scope.current + 1;
         }
       };      
-   }])
+  }])
 
-  .controller('UploadCtrl', ['$scope', 'uploadImage', 'saveQuestion', 
-    function($scope, uploadImage, saveQuestion) {
-      $scope.progress = 0;
-      $scope.selectedFile = null;
+  .controller('UploadCtrl', ['$scope', 'uploadImage', 'saveQuestion', 'getAnswers', 
+    function($scope, uploadImage, saveQuestion, getAnswers) {
+      function initNewUpload() {
+        $scope.progress = 0;
+        $scope.selectedFile = null;
+        $scope.checkedAnswers = {};
+        $scope.fileInput = null;
+      }
+
+      initNewUpload();
+      $scope.answerGroups = {};
       
+      // Capture image file select
       $scope.onFileSelect = function($files) {
         $scope.progress = 0;
         if ($files.length == 1) {
@@ -37,6 +46,34 @@ angular.module('myApp.controllers', [])
         }
       }
 
+      // Build answer groups
+      getAnswers().then(function(answers) {
+        for (var i in answers) {
+          var firstLetter = answers[i][0];
+          if (firstLetter in $scope.answerGroups == false) {
+            $scope.answerGroups[firstLetter] = [];
+          }
+          $scope.answerGroups[firstLetter].push(answers[i]);
+        }
+      });
+
+      $scope.trueAnswers = function() {
+        var truthys = [];
+        for (var answer in $scope.checkedAnswers) {
+          if ($scope.checkedAnswers[answer] == true) {
+            truthys.push(answer);
+          }
+        }
+        return truthys;
+      };
+      
+      $scope.removeAnswer = function(answer) {
+        if (answer in $scope.checkedAnswers && $scope.checkedAnswers[answer] == true) {
+          $scope.checkedAnswers[answer] = false;
+        }
+      };
+
+      // Upload image and save question
       $scope.onUpload = function() {
         if ($scope.selectedFile) {
           uploadImage($scope.selectedFile, 
@@ -44,16 +81,20 @@ angular.module('myApp.controllers', [])
               $scope.progress = progress;
             },
             function successEvt(uploadUrl) {
-              $scope.selectedFile = null;
-              fileInput.value = null;
-              saveQuestion(uploadUrl, function (error) {
+              var authorAnswer = {};
+              for (var key in $scope.checkedAnswers) {
+                if ($scope.checkedAnswers[key]) {
+                  authorAnswer[key] = true;
+                }
+              }
+              saveQuestion(uploadUrl, authorAnswer, function (error) {
                 if (error) {
                   alert('Save question: ' + error);
                 }
               });
+              initNewUpload();
             },
             function errorEvt(error) {
-              $scope.progress = 0;
               alert('Upload image: ' + error);
             }
           );

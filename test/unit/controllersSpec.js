@@ -7,16 +7,19 @@ describe('controllers', function(){
 
   describe('UploadCtrl', function() {
     var scope, ctrl;
+    var answers = ['bulldog', 'boxer', 'pug'];
+    var answerGroups = { b : [ 'bulldog', 'boxer' ], p : [ 'pug' ] };
     
     beforeEach(module(function($provide) {
-       // mock dependencies used to isolate testing
-       $provide.value('uploadImage', function(file, progressEvent, successEvent, errorEvent) {});
-       $provide.value('saveQuestion', function(url, callback) {});
+      // mock dependencies used to isolate testing
+      $provide.value('uploadImage', function(file, progressEvent, successEvent, errorEvent) {});
+      $provide.value('saveQuestion', function(url, callback) {});
+      $provide.value('getAnswers', function() { return { then: function(cb) { cb(answers); }}});
     }));
     
     beforeEach(inject(function($controller) {
       scope = {},
-      ctrl = $controller('UploadCtrl', { $scope: scope });
+      ctrl = $controller('UploadCtrl', { $scope: scope} );
     }));
     
     it('progress should be zero', inject(function() {
@@ -33,6 +36,21 @@ describe('controllers', function(){
       var files = [{name: 'myFile1.txt', type: 'image/jpeg'}, {name: 'myFile2.txt', type: 'image/jpeg'}];
       scope.onFileSelect(files)
       expect(scope.selectedFile).toBe(null);
+    }));
+    
+    it('answer groups', inject(function() {
+      expect(scope.answerGroups).toEqual(answerGroups);
+    }));
+
+    it('checked answers', inject(function() {
+      scope.checkedAnswers = {'a': true, 'b': false};
+      expect(scope.trueAnswers()).toEqual(['a']);
+    }));
+    
+    it('remove checked answers', inject(function() {
+      scope.checkedAnswers = {'a': true, 'c': true};
+      scope.removeAnswer('c');
+      expect(scope.checkedAnswers).toEqual({'a': true, 'c': false});
     }));
   });
 });

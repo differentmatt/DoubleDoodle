@@ -18,6 +18,18 @@
       }          
     }
   }])
+  
+  .service('getAnswers', ['envPath', 'firebaseRef', '$q', function(envPath, firebaseRef, $q) {
+    return function() {
+      var deferred = $q.defer();
+      var answersRef = firebaseRef(envPath() + '/answers');      
+      answersRef.once('value', function(snapshot) {
+        var answers = snapshot.val().split(',');
+        deferred.resolve(answers);
+      });
+      return deferred.promise;
+    }
+  }])
 
   .service('uploadImage', ['$upload', 'S3URL', 'envPath', function($upload, S3URL, envPath) {
     return function(file, progressEvent, successEvent, errorEvent) {
@@ -51,12 +63,13 @@
   }])
 
   .service('saveQuestion', ['envPath', 'firebaseRef', function(envPath, firebaseRef) {
-    return function(imageUrl, callback) {
+    return function(imageUrl, authorAnswer, callback) {
       var createdTime = new Date().getTime();
 
       var question = {
           imageUrl: imageUrl,
-          created: createdTime
+          created: createdTime,
+          authorAnswer: authorAnswer,
       };
       
       var questionsRef = firebaseRef(envPath() + '/questions');      
