@@ -1,10 +1,53 @@
-<h2>Home</h2>
+<div ng-show="loading()">Loading...</div>
 
-<div>
-  <div>Question {{ current + 1 }}</div>
-  <img ng-src="{{ questions[questions.$getIndex()[current]].imageUrl }}" style="margin:auto; max-height:200px;"/>
-</div>
-<div>
-  <button ng-click="prev()">Prev</button>
-  <button ng-click="next()">Next</button>
+<div ng-show="!loading()">
+  <div>Score: {{ game.score.author }} {{ game.score.community }}</div>
+  <h2>What type of dog is this?</h2>
+
+  <div>
+    <img ng-src="{{ game.questions[game.current].imageUrl }}" style="margin:auto; max-height:200px;"/>
+  </div>
+  <br />
+
+  <div>
+    <button class="btn btn-xs btn-default" ng-click="prev()" ng-disabled="game.current == 0">Last</button>
+    <button class="btn btn-xs btn-default" ng-click="next()" ng-disabled="game.current == game.questions.length - 1">Next</button>
+  </div>
+  <br />
+
+  <div ng-show="showQuestion()">
+    <tabset>
+      <tab ng-repeat="(key, group) in game.answerGroups" heading="{{key}}">
+        <button ng-repeat="answer in group"
+            type="button" class="btn btn-primary" ng-model="question.checkedAnswers[answer]" 
+            btn-checkbox>{{answer}}</button>
+      </tab>
+    </tabset>
+    <br />
+    <div>
+      <button ng-repeat="(key, value) in question.checkedAnswers" 
+          ng-click="removeAnswer(key)" type="button" 
+          class="btn btn-primary">{{key}}</button>
+    </div>
+    <br />
+    <button class="btn btn-lg btn-success" ng-click="guess()">Answer</button>
+  </div>
+
+  <div ng-show="showAnswer()">
+    <h3 ng-show="game.answered[game.current].correctAuthor">Your answer matched the owner!</h3>
+    <h3 ng-show="!game.answered[game.current].correctAuthor && game.questions[game.current].authorAnswers">Your answer did not match the owner :(</h3>
+    <h3 ng-show="game.answered[game.current].correctCommunity">Your answer matched the community!</h3>
+    <h3 ng-show="!game.answered[game.current].correctCommunity && question.communityAnswers.length > 0">Your answer did not match the community :(</h3>
+    <div>Your total score: {{ game.score.author + game.score.community }}</div>
+    <br/>
+    
+    <h4>Your answer</h4>
+    <div ng-repeat="answer in game.answered[game.current].answers">{{ answer }}</div>
+    <div ng-show="game.questions[game.current].authorAnswers">
+      <h4>Owner Answer</h4>
+      <div ng-repeat="(key, value) in game.questions[game.current].authorAnswers">{{ key }}</div>
+    </div>
+    <h4>Community Answers</h4>
+    <div ng-repeat="answer in question.communityAnswers">{{ answer.count }} {{ answer.name }}</div>
+  </div>
 </div>

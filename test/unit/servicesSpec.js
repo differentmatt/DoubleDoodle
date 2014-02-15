@@ -2,10 +2,12 @@
 
 /* jasmine specs for services go here */
 
+// TODO: test getAnswers (couldn't get promise to callback after resolve. scope.$apply?)
+// TODO: test getQuestions
+// TODO: test answerQuestion
+
 describe('service', function() {
    beforeEach(module('myApp.services'));
-
-  // TODO: test getAnswers (couldn't get promise to callback after resolve. scope.$apply?)
 
   describe('envPathService', function() {
     beforeEach(module(function($provide) {

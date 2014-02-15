@@ -4,7 +4,7 @@
 <div ng-show="answerGroups['A']">
   <input ng-model="fileInput" type="file" ng-file-select="onFileSelect($files)" ><br />
 
-  <h4>Know the breed?</h4>
+  <h4>Know the breed? (optional)</h4>
   <tabset>
     <tab ng-repeat="(key, group) in answerGroups" heading="{{key}}">
       <button ng-repeat="answer in group"
@@ -12,9 +12,9 @@
           btn-checkbox>{{answer}}</button>
     </tab>
   </tabset>
-  <div ng-show="trueAnswers().length > 0">
-    <h4>Your selection (optional):</h4>
-    <button ng-repeat="checkedAnswer in trueAnswers()" 
+  <div ng-show="userAnswers().length > 0">
+    <h4>Your selection:</h4>
+    <button ng-repeat="checkedAnswer in userAnswers()" 
         ng-click="removeAnswer(checkedAnswer)" type="button" 
         class="btn btn-primary">{{checkedAnswer}}</button>
   </div>

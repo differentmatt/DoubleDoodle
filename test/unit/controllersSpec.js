@@ -2,6 +2,9 @@
 
 /* jasmine specs for controllers go here */
 
+// TODO: Test HomeCtrl
+  
+
 describe('controllers', function(){
   beforeEach(module('myApp.controllers'));
 
@@ -44,7 +47,7 @@ describe('controllers', function(){
 
     it('checked answers', inject(function() {
       scope.checkedAnswers = {'a': true, 'b': false};
-      expect(scope.trueAnswers()).toEqual(['a']);
+      expect(scope.userAnswers()).toEqual(['a']);
     }));
     
     it('remove checked answers', inject(function() {
