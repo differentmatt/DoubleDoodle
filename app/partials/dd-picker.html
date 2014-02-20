@@ -1,0 +1,13 @@
+<tabset>
+  <tab ng-repeat="tab in tabs" heading="{{tab.title}}">
+    <button ng-repeat="option in tab.content"
+        ng-click="toggleOption(option)" type="button" 
+        class="btn btn-primary">{{option}}</button>
+  </tab>
+</tabset>
+<br />
+<div>
+  <button ng-repeat="option in selected" 
+      ng-click="removeOption(option)" type="button" 
+      class="btn btn-primary">{{option}}</button>
+</div>

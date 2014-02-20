@@ -40,20 +40,5 @@ describe('controllers', function(){
       scope.onFileSelect(files)
       expect(scope.selectedFile).toBe(null);
     }));
-    
-    it('answer groups', inject(function() {
-      expect(scope.answerGroups).toEqual(answerGroups);
-    }));
-
-    it('checked answers', inject(function() {
-      scope.checkedAnswers = {'a': true, 'b': false};
-      expect(scope.userAnswers()).toEqual(['a']);
-    }));
-    
-    it('remove checked answers', inject(function() {
-      scope.checkedAnswers = {'a': true, 'c': true};
-      scope.removeAnswer('c');
-      expect(scope.checkedAnswers).toEqual({'a': true, 'c': false});
-    }));
   });
 });

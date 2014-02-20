@@ -1,6 +1,6 @@
 <div ng-show="loading()">Loading...</div>
 
-<div ng-show="!loading()">
+<div ng-show="!loading()">	
   <div>Score: {{ game.score.author }} {{ game.score.community }}</div>
   <h2>What type of dog is this?</h2>
 
@@ -16,19 +16,7 @@
   <br />
 
   <div ng-show="showQuestion()">
-    <tabset>
-      <tab ng-repeat="(key, group) in game.answerGroups" heading="{{key}}">
-        <button ng-repeat="answer in group"
-            type="button" class="btn btn-primary" ng-model="question.checkedAnswers[answer]" 
-            btn-checkbox>{{answer}}</button>
-      </tab>
-    </tabset>
-    <br />
-    <div>
-      <button ng-repeat="(key, value) in question.checkedAnswers" 
-          ng-click="removeAnswer(key)" type="button" 
-          class="btn btn-primary">{{key}}</button>
-    </div>
+		<dd-picker options="game.answers" selected="question.selected"></dd-picker>
     <br />
     <button class="btn btn-lg btn-success" ng-click="guess()">Answer</button>
   </div>

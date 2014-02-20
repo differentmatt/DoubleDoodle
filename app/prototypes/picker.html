@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" ng-app="myapp">
+<head>
+  <title>Prototype dd-picker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+  </style>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+</head>
+
+<body ng-controller="PickerCtrl">
+	<dd-picker options="options" selected="selected"></dd-picker>
+	<br />
+	<div>selected: {{ selected }}</div>
+  <script src="https://cdn.firebase.com/v0/firebase.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/0.6.0/angularfire.js"></script>
+  <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
+  <script>
+    angular.module("myapp", ["firebase", "ui.bootstrap"])
+		  .directive('ddPicker', function () {
+				return {
+					restrict: 'E',
+					templateUrl: '../partials/dd-picker.html',
+					scope: {
+						'options': '=',
+						'selected': '='
+					},
+					controller: function($scope, $element) {
+						$scope.tabs = [];
+						$scope.$watch('options', function() {
+							$scope.tabs = groupOptions($scope.options);
+						});
+						
+						function groupOptions(options) {
+							var groups = {};
+							for (var i in options) {
+								var option = options[i];
+								var firstLetter = option[0];
+								if (firstLetter in groups == false) {
+									groups[firstLetter] = [];
+								}
+								groups[firstLetter].push(option);
+							}
+							var tabs = [];
+							for (var group in groups) {
+								var tab = { title: group, content : [] };
+								for (var key in groups[group]) {
+									var option = groups[group][key];
+									tab["content"].push(option);
+								}
+								tabs.push(tab);
+							}
+							return tabs;
+						}
+						
+						$scope.toggleOption = function(option) {
+							var index = $scope.selected.indexOf(option);
+							if (index != -1) {
+								$scope.selected.splice(index, 1);
+							}
+							else {
+								$scope.selected.push(option);
+							}
+						};
+						
+						$scope.removeOption = function(option) {
+							var index = $scope.selected.indexOf(option);
+							if (index != -1) {
+								$scope.selected.splice(index, 1);
+							}
+						};
+					},
+				}
+			})
+     .controller('PickerCtrl', ['$scope', '$firebase', function($scope, $firebase) {
+				$scope.selected = [];
+        $scope.options = [];
+				var fb = $firebase(new Firebase('https://DoubleDoodle.firebaseio.com/test/answers'));
+				fb.$on('loaded', function() {
+					$scope.options = fb.$value.split(',');
+				});
+     }]);
+  </script>
+</body>
+</html>

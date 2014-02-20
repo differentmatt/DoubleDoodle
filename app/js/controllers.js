@@ -2,14 +2,14 @@
 
 /* Controllers */
 
-// TODO: consolidate answer selectors (into directive?) in Home and Upload controllers
+// TODO: save author answers as comma delimited string.  compact, faster.
 
 angular.module('myApp.controllers', [])
   .controller('HomeCtrl', ['$scope', 'getAnswers', 'getQuestions', 'answerQuestion', 
     function($scope, getAnswers, getQuestions, answerQuestion) {
       // Initialize Game and question data
       $scope.game = {
-        'answerGroups': {},
+        'answers': [],
         'questions': [],
         'current': 0,
         'answered': {},
@@ -25,21 +25,15 @@ angular.module('myApp.controllers', [])
         initQuestion();        
       });
       getAnswers().then(function(answers) {
-        for (var i in answers) {
-          var firstLetter = answers[i][0];
-          if (firstLetter in $scope.game.answerGroups == false) {
-            $scope.game.answerGroups[firstLetter] = [];
-          }
-          $scope.game.answerGroups[firstLetter].push(answers[i]);
-        }
+        $scope.game.answers = answers;
       });
 
       function initQuestion() {
         // Question (current) data
         $scope.question = {
-          'checkedAnswers': {},
           'communityAnswers': [],
           'authorAnswers': [],
+          'selected': [],
         };
         if ($scope.game.current < $scope.game.questions.length) {
           if ($scope.game.questions[$scope.game.current].answers) {
@@ -60,7 +54,7 @@ angular.module('myApp.controllers', [])
       }
       
       $scope.loading = function() {
-        return $scope.game.questions.length == 0 || Object.keys($scope.game.answerGroups).length == 0;
+        return $scope.game.questions.length === 0 || $scope.game.answers.length === 0;
       };
       $scope.showQuestion = function() {
         if ($scope.loading()) {
@@ -94,7 +88,7 @@ angular.module('myApp.controllers', [])
       };
 
       $scope.guess = function() {
-        if (Object.keys($scope.question.checkedAnswers).length > 0) {
+        if ($scope.question.selected.length > 0) {
           var correctCommunityAnswers = false;
           var correctAuthorAnswers = false;
           
@@ -102,7 +96,7 @@ angular.module('myApp.controllers', [])
           // TODO: account for ties
           if ($scope.game.current < $scope.game.questions.length && 
               $scope.game.questions[$scope.game.current].answers) {
-            var userAnswers = Object.keys($scope.question.checkedAnswers);
+            var userAnswers = $scope.question.selected.slice();
             for (var i = 0; i < $scope.question.communityAnswers.length && userAnswers.length > 0; i++) {
               var uIndex = userAnswers.indexOf($scope.question.communityAnswers[i].name);
               if (uIndex != -1) {
@@ -125,7 +119,7 @@ angular.module('myApp.controllers', [])
           if ($scope.game.current < $scope.game.questions.length &&
               $scope.game.questions[$scope.game.current].authorAnswers) {
             var authorAnswers = $scope.question.authorAnswers.slice();
-            var userAnswers = Object.keys($scope.question.checkedAnswers);
+            var userAnswers = $scope.question.selected.slice();
             while (authorAnswers.length > 0 && userAnswers.length > 0) {
               var index = userAnswers.indexOf(authorAnswers[0]);
               if (index != -1) {
@@ -142,11 +136,11 @@ angular.module('myApp.controllers', [])
           }
           
           // Save new answers
-          for (var answer in $scope.question.checkedAnswers) {
-            answerQuestion($scope.game.questions[$scope.game.current]._index, $scope.game.questions[$scope.game.current], answer);
+          for (var i = 0; i < $scope.question.selected.length; i++) {
+            answerQuestion($scope.game.questions[$scope.game.current]._index, $scope.game.questions[$scope.game.current], $scope.question.selected[i]);
           }
           $scope.game.answered[$scope.game.current] = {
-            'answers': Object.keys($scope.question.checkedAnswers),
+            'answers': $scope.question.selected,
             'correctAuthor': correctAuthorAnswers,
             'correctCommunity': correctCommunityAnswers,
           };
@@ -161,25 +155,18 @@ angular.module('myApp.controllers', [])
           alert('TODO: disable answer button if no answers selected');
         }
       };
-
-      $scope.removeAnswer = function(answer) {
-        if (answer in $scope.question.checkedAnswers) {
-          delete $scope.question.checkedAnswers[answer];
-        }
-      };
   }])
 
   .controller('UploadCtrl', ['$scope', 'uploadImage', 'saveQuestion', 'getAnswers', 
     function($scope, uploadImage, saveQuestion, getAnswers) {
+      $scope.answers = [];
       function initNewUpload() {
         $scope.progress = 0;
         $scope.selectedFile = null;
-        $scope.checkedAnswers = {};
         $scope.fileInput = null;
+        $scope.selected = [];
       }
-
       initNewUpload();
-      $scope.answerGroups = {};
       
       // Capture image file select
       $scope.onFileSelect = function($files) {
@@ -195,32 +182,9 @@ angular.module('myApp.controllers', [])
         }
       }
 
-      // Build answer groups
       getAnswers().then(function(answers) {
-        for (var i in answers) {
-          var firstLetter = answers[i][0];
-          if (firstLetter in $scope.answerGroups == false) {
-            $scope.answerGroups[firstLetter] = [];
-          }
-          $scope.answerGroups[firstLetter].push(answers[i]);
-        }
+        $scope.answers = answers;
       });
-
-      $scope.userAnswers = function() {
-        var truthys = [];
-        for (var answer in $scope.checkedAnswers) {
-          if ($scope.checkedAnswers[answer] == true) {
-            truthys.push(answer);
-          }
-        }
-        return truthys;
-      };
-      
-      $scope.removeAnswer = function(answer) {
-        if (answer in $scope.checkedAnswers && $scope.checkedAnswers[answer] == true) {
-          $scope.checkedAnswers[answer] = false;
-        }
-      };
 
       // Upload image and save question
       $scope.onUpload = function() {
@@ -231,10 +195,8 @@ angular.module('myApp.controllers', [])
             },
             function successEvt(uploadUrl) {
               var authorAnswers = {};
-              for (var key in $scope.checkedAnswers) {
-                if ($scope.checkedAnswers[key]) {
-                  authorAnswers[key] = true;
-                }
+              for (var i = 0; i < $scope.selected.length; i++) {
+                authorAnswers[$scope.selected[i]] = true;
               }
               saveQuestion(uploadUrl, authorAnswers, function (error) {
                 if (error) {
