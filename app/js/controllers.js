@@ -5,6 +5,9 @@
 // TODO: save author answers as comma delimited string.  compact, faster.
 
 angular.module('myApp.controllers', [])
+  .controller('NavbarCtrl', ['$scope', function($scope) {
+    $scope.isCollapsed = true;
+  }])
   .controller('HomeCtrl', ['$scope', 'getAnswers', 'getQuestions', 'answerQuestion', 
     function($scope, getAnswers, getQuestions, answerQuestion) {
       // Initialize Game and question data
